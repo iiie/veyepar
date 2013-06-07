@@ -106,7 +106,7 @@ class Show(models.Model):
     name = models.CharField(max_length=135)
     slug = models.CharField(max_length=135,
         help_text="dir name to store input files")
-    category_key = models.CharField(max_length=30, blank=True, null=True,
+    category_key_override = models.CharField(max_length=30, blank=True, null=True,
             help_text = "Category for Richard")
     tags = models.TextField(null=True,blank=True,)
     description = models.TextField(blank=True)
@@ -118,6 +118,15 @@ class Show(models.Model):
         return self.client
     def __unicode__(self):
         return "%s: %s" % ( self.client_name, self.name )
+
+    def _get_category_key(self):
+        return self.category_key_override if self.category_key_override else self.client.category_key
+
+    def _set_category_key(self, value):
+        self.category_key_override = value
+
+    category_key = property(_get_category_key, _set_category_key)
+
     @models.permalink
     def get_absolute_url(self):
         return ('episode_list', [self.client.slug,self.slug,])
